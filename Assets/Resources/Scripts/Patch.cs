@@ -8,52 +8,75 @@ public class Patch : MonoBehaviour
     public int posX;
     public int posY;
 
+    private int spawnRange = 6;
+    private int despawnRange = 12;
+
+    public bool OutOfRange()
+    {
+        return Vector2.Distance(GameObject.Find("Player").transform.position, transform.position) > despawnRange;
+    }
+
+    public bool InRange()
+    {
+        return Vector2.Distance(GameObject.Find("Player").transform.position, transform.position) < spawnRange;
+    }
+
     public void Extend()
     {
-        if (transform.Find("Graphic").GetComponent<Renderer>().isVisible)
+        for (int i = 0; i < neighbours.Length; i++)
         {
-            for (int i = 0; i < neighbours.Length; i++)
+            if (neighbours[i] == null)
             {
-                if (neighbours[i] == null)
+                Patch newPatch = Instantiate(Resources.Load("Prefabs/Patch") as GameObject, transform.parent).GetComponent<Patch>();
+                int x = 0;
+                int y = 0;
+
+                if (i == 0)
                 {
-                    Patch newPatch = Instantiate(Resources.Load("Prefabs/Patch") as GameObject, transform.parent).GetComponent<Patch>();
-                    int x = 0;
-                    int y = 0;
-
-                    if (i == 0)
-                    {
-                        y++;
-                    }
-                    else if (i == 1)
-                    {
-                        x++;
-                    }
-                    else if (i == 2)
-                    {
-                        y--;
-                    }
-                    else
-                    {
-                        x--;
-                    }
-
-                    newPatch.transform.position = transform.position;
-                    newPatch.transform.Translate(new Vector2(x, y));
-                    newPatch.neighbours[(i + 2) % 4] = this;
-                    newPatch.gameObject.name = "Patch " + x + ":" + y;
-                    newPatch.posX = posX + x;
-                    newPatch.posY = posY + y;
-                    neighbours[i] = newPatch;
-                    newPatch.FillNeighbours();
-                    newPatch.Spawn();
+                    y++;
                 }
+                else if (i == 1)
+                {
+                    x++;
+                }
+                else if (i == 2)
+                {
+                    y--;
+                }
+                else
+                {
+                    x--;
+                }
+
+                newPatch.transform.position = transform.position;
+                newPatch.transform.Translate(new Vector2(x, y));
+                newPatch.neighbours[(i + 2) % 4] = this;
+                newPatch.posX = posX + x;
+                newPatch.posY = posY + y;
+                newPatch.gameObject.name = "Patch " + newPatch.posX + ":" + newPatch.posY;
+                neighbours[i] = newPatch;
+                newPatch.FillNeighbours();
+                newPatch.Spawn();
             }
         }
     }
 
     public void Spawn()
     {
-        GetComponent<Animator>().Play("Drop");
+        GetComponent<Animator>().Play("Spawn");
+    }
+    public void Despawn()
+    {
+        GetComponent<Animator>().Play("Despawn");
+
+        float length = GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).length;
+
+        Invoke("Invoke_Remove", length);
+    }
+
+    private void Invoke_Remove()
+    {
+        Destroy(gameObject);
     }
 
     public void LinkWith(Patch link, int dir) {
@@ -90,9 +113,13 @@ public class Patch : MonoBehaviour
 
     public void Update()
     {
-        //if (Input.GetKeyDown(KeyCode.Space))
-        //{
+        if (InRange())
+        {
             Extend();
-        //}
+        }
+        else if(OutOfRange())
+        {
+            Despawn();
+        }
     }
 }
