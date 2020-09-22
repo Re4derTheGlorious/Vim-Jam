@@ -31,6 +31,7 @@ public class Patch : MonoBehaviour
                 int x = 0;
                 int y = 0;
 
+
                 if (i == 0)
                 {
                     y++;
@@ -54,6 +55,10 @@ public class Patch : MonoBehaviour
                 newPatch.posX = posX + x;
                 newPatch.posY = posY + y;
                 newPatch.gameObject.name = "Patch " + newPatch.posX + ":" + newPatch.posY;
+
+                Grid.GridPatch template = GameObject.Find("World").GetComponent<Grid>().map[newPatch.posX, newPatch.posY];
+                newPatch.transform.Find("Graphic").gameObject.GetComponent<Renderer>().material.color = template.color;
+
                 neighbours[i] = newPatch;
                 newPatch.FillNeighbours();
                 newPatch.Spawn();
