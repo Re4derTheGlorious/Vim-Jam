@@ -27,7 +27,6 @@ public class Patch : MonoBehaviour
         {
             if (neighbours[i] == null)
             {
-                Patch newPatch = Instantiate(Resources.Load("Prefabs/Patch") as GameObject, transform.parent).GetComponent<Patch>();
                 int x = 0;
                 int y = 0;
 
@@ -49,15 +48,41 @@ public class Patch : MonoBehaviour
                     x--;
                 }
 
+
+                int newX = posX + x;
+                int newY = posY + y;
+                
+                Grid.GridPatch template = null;
+
+                if (newX >= 0 && newX < transform.parent.gameObject.GetComponent<Grid>().map.GetLength(0) && newY >= 0 && newY < transform.parent.gameObject.GetComponent<Grid>().map.GetLength(1))
+                {
+                    template = transform.parent.gameObject.GetComponent<Grid>().map[newX, newY];
+                }
+                else
+                {
+                    break;
+                }
+
+                if (template == null)
+                {
+                    break;
+                }
+
+                Patch newPatch = Instantiate(Resources.Load("Prefabs/Patch") as GameObject, transform.parent).GetComponent<Patch>();
+                newPatch.posX = newX;
+                newPatch.posY = newY;
+
+                //var txt = newPatch.transform.Find("Graphic").gameObject.GetComponent<Renderer>().material.shader.GetGlobalTexture("_MainTex");
+                //txt.color = Color.black;
+
+                //newPatch.transform.Find("Graphic").gameObject.GetComponent<Renderer>().material.shader.SetGlobalTexture("_MainText", txt);
+
                 newPatch.transform.position = transform.position;
                 newPatch.transform.Translate(new Vector2(x, y));
                 newPatch.neighbours[(i + 2) % 4] = this;
-                newPatch.posX = posX + x;
-                newPatch.posY = posY + y;
+                
                 newPatch.gameObject.name = "Patch " + newPatch.posX + ":" + newPatch.posY;
 
-                Grid.GridPatch template = GameObject.Find("World").GetComponent<Grid>().map[newPatch.posX, newPatch.posY];
-                newPatch.transform.Find("Graphic").gameObject.GetComponent<Renderer>().material.color = template.color;
 
                 neighbours[i] = newPatch;
                 newPatch.FillNeighbours();
