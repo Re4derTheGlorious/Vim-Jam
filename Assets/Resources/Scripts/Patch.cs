@@ -75,6 +75,8 @@ public class Patch : MonoBehaviour
                 //var txt = newPatch.transform.Find("Graphic").gameObject.GetComponent<Renderer>().material.shader.GetGlobalTexture("_MainTex");
                 //txt.color = Color.black;
 
+                Shader.SetGlobalColor("_Color", Color.blue);
+                //newPatch.transform.Find("Graphic").gameObject.GetComponent<MeshRenderer>().material.color = Color.blue;
                 //newPatch.transform.Find("Graphic").gameObject.GetComponent<Renderer>().material.shader.SetGlobalTexture("_MainText", txt);
 
                 newPatch.transform.position = transform.position;
